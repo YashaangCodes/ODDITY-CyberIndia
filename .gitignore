@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+backend/.venv/
+.venv/
+venv/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Environment variables
+.env
+backend/.env
+
+# Generated machine-learning models
+backend/models/*.joblib
+backend/models/*.pkl
+
+# Node.js
+node_modules/
+frontend/node_modules/
+frontend/dist/
+
+# VS Code and editors
+.vscode/
+.idea/
+
+# Operating system
+.DS_Store
+Thumbs.db
+
+# Private or user-submitted data
+data/private/
+data/user_submissions/
+
+# Logs
+*.log
