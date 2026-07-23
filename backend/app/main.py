@@ -1,3 +1,4 @@
+from app.api.message_routes import router as message_router
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -19,6 +20,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(message_router)
 
 @app.get("/")
 def home() -> dict[str, str]:
