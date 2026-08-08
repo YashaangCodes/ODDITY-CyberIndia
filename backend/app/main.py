@@ -1,7 +1,9 @@
-from app.api.message_routes import router as message_router
-from app.api.url_routes import router as url_router
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+from app.api.message_routes import router as message_router
+from app.api.url_routes import router as url_router
+from app.api.phone_routes import router as phone_router
 
 app = FastAPI(
     title="ScamShield India API",
@@ -23,6 +25,7 @@ app.add_middleware(
 
 app.include_router(message_router)
 app.include_router(url_router)
+app.include_router(phone_router)
 
 @app.get("/")
 def home() -> dict[str, str]:
