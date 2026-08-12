@@ -11,6 +11,13 @@ class PhoneAnalysisRequest(BaseModel):
         examples=["9876543210", "+919876543210"],
     )
 
+class PhoneReputationEvidence(BaseModel):
+    classification: str
+    category: str
+    report_count: int
+    source_count: int
+    confidence: str
+    conflicting_evidence: bool
 
 class PhoneAnalysisResponse(BaseModel):
     input_type: Literal["phone"]
@@ -26,3 +33,5 @@ class PhoneAnalysisResponse(BaseModel):
     threat_category: str
     reasons: list[str]
     recommendation: str
+
+    reputation_evidence: PhoneReputationEvidence | None
