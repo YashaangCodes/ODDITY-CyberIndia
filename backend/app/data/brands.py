@@ -24,4 +24,7 @@ KNOWN_BRANDS: dict[str, list[str]] = {
     "facebook": [
         "facebook.com",
     ],
+    "flipkart": [
+        "flipkart.com",
+    ],
 }
