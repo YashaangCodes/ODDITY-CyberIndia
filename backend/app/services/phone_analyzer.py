@@ -4,6 +4,9 @@ from app.schemas.phone import (
     PhoneAnalysisResponse,
     PhoneReputationEvidence,
 )
+
+from app.data.phone_reputation import PHONE_REPUTATION_DATA
+
 from app.utils.phone_utils import (
     normalize_phone_number,
     is_valid_phone_number,
@@ -11,16 +14,27 @@ from app.utils.phone_utils import (
     get_phone_number_type,
     is_indian_service_number,
 )
-from app.utils.phone_reputation_utils import lookup_phone_reputation
+
 from app.services.phone_reputation_engine import (
     calculate_combined_reputation,
 )
+
+
+def lookup_phone_reputation(phone_number: str):
+    """Find reputation records matching a normalized phone number."""
+    return [
+        record
+        for record in PHONE_REPUTATION_DATA
+        if record["number"] == phone_number
+    ]
+
 
 def analyze_phone(phone_number: str) -> PhoneAnalysisResponse:
     risk_score: int = 0
     reasons: list[str] = []
 
-    # Handle Indian emergency/service numbers first
+    # Handle Indian emergency/service numbers first.
+    # These should not be passed through normal phone-number validation.
     if is_indian_service_number(phone_number):
         return PhoneAnalysisResponse(
             input_type="phone",
@@ -61,10 +75,23 @@ def analyze_phone(phone_number: str) -> PhoneAnalysisResponse:
             ),
         )
 
+    # Check whether the parsed number is actually valid.
     if not is_valid_phone_number(parsed_number):
-        risk_score += 40
-        reasons.append(
-            "The phone number does not appear to be a valid number for its region."
+        return PhoneAnalysisResponse(
+            input_type="phone",
+            analysis_method="rule_based_baseline",
+            country=get_phone_country(parsed_number),
+            number_type=get_phone_number_type(parsed_number),
+            safety_score=None,
+            risk_score=None,
+            risk_level="not_applicable",
+            threat_category="invalid_phone_number",
+            reasons=[
+                "The provided input is not a valid phone number for its region."
+            ],
+            recommendation=(
+                "Please check the phone number and enter a valid number."
+            ),
         )
 
     country = get_phone_country(parsed_number)
@@ -75,12 +102,10 @@ def analyze_phone(phone_number: str) -> PhoneAnalysisResponse:
         PhoneNumberFormat.E164,
     )
 
-    # Reputation lookup
-    reputation_records = lookup_phone_reputation(
-        normalized_number
-    )
+    # Reputation lookup against the local sample dataset.
+    reputation_records = lookup_phone_reputation(normalized_number)
 
-    # Combined reputation assessment
+    # Calculate reputation assessment.
     reputation_assessment = calculate_combined_reputation(
         reputation_records
     )
@@ -93,53 +118,61 @@ def analyze_phone(phone_number: str) -> PhoneAnalysisResponse:
     source_count = reputation_assessment["source_count"]
     conflicting_evidence = reputation_assessment["conflicting_evidence"]
 
-    reputation_evidence = PhoneReputationEvidence(
-        classification=reputation_classification,
-        category=reputation_category or "unknown",
-        report_count=total_report_count,
-        source_count=source_count,
-        confidence=reputation_confidence or "low",
-        conflicting_evidence=conflicting_evidence,
-    ) if reputation_classification else None
+    reputation_evidence = (
+        PhoneReputationEvidence(
+            classification=reputation_classification,
+            category=reputation_category or "unknown",
+            report_count=total_report_count,
+            source_count=source_count,
+            confidence=reputation_confidence or "low",
+            conflicting_evidence=conflicting_evidence,
+        )
+        if reputation_classification
+        else None
+    )
 
-    # Add reputation-based explanations
+    # Add reputation-based explanations.
     if reputation_classification == "scam":
         reasons.append(
-            "The phone number is associated with reported scam activity."
+            "The phone number matches a number listed in the ScamShield-India "
+            "sample scam dataset."
         )
 
     elif reputation_classification == "suspicious":
         reasons.append(
-            "The phone number has been associated with suspicious activity."
+            "The phone number matches a number listed in the ScamShield-India "
+            "sample suspicious-number dataset."
         )
 
     elif reputation_classification == "spam":
         reasons.append(
-            "The phone number has been reported for spam activity."
+            "The phone number matches a number listed in the ScamShield-India "
+            "sample spam dataset."
         )
 
-    # Summarize report counts from all reputation records
     if total_report_count >= 2:
         reasons.append(
-            f"The number has {total_report_count} recorded reports "
-            f"across {source_count} source(s)."
+            f"The sample dataset contains {total_report_count} reputation "
+            f"record(s) across {source_count} source classification(s)."
         )
 
     if reputation_confidence == "high":
         reasons.append(
-            "The reputation data has high confidence."
+            "The sample reputation data is marked as high confidence."
         )
 
     if conflicting_evidence:
         reasons.append(
-            "The available reputation sources contain conflicting classifications."
-        )
-    if not reasons:
-        reasons.append(
-            "No suspicious indicators were detected by the baseline phone-number rules."
+            "The sample dataset contains conflicting classifications for this number."
         )
 
-    # Combine baseline and reputation risk
+    if not reasons:
+        reasons.append(
+            "No suspicious indicators were detected by the current "
+            "phone-number baseline."
+        )
+
+    # Combine validation/rule-based risk with reputation risk.
     risk_score = max(
         risk_score,
         reputation_score,
@@ -148,6 +181,7 @@ def analyze_phone(phone_number: str) -> PhoneAnalysisResponse:
     risk_score = min(risk_score, 100)
     safety_score = 100 - risk_score
 
+    # Determine risk level.
     if risk_score >= 70:
         risk_level = "high"
     elif risk_score >= 35:
@@ -155,55 +189,42 @@ def analyze_phone(phone_number: str) -> PhoneAnalysisResponse:
     else:
         risk_level = "low"
 
-    # Determine threat category and recommendation
+    # Determine threat category and recommendation.
     if reputation_classification == "scam":
         threat_category = reputation_category or "general_scam_phone"
 
         recommendation = (
-            "This number has been associated with reported scam activity. "
-            "Do not share OTPs, PINs, passwords, banking information, or "
-            "make payments unless the caller is independently verified."
+            "This number matches a number classified as a scam in the "
+            "current sample dataset. Do not share OTPs, PINs, passwords, "
+            "banking information, or make payments unless the caller is "
+            "independently verified."
         )
 
     elif reputation_classification == "spam":
         threat_category = "spam_phone_number"
 
         recommendation = (
-            "This number has been reported for spam activity. "
-            "Be cautious about responding or sharing personal information."
+            "This number matches a number classified as spam in the "
+            "current sample dataset. Be cautious about responding or "
+            "sharing personal information."
         )
 
     elif reputation_classification == "suspicious":
         threat_category = "suspicious_phone_number"
 
         recommendation = (
-            "This number has been associated with suspicious activity. "
-            "Verify the caller independently before sharing sensitive "
-            "information."
-        )
-
-    elif risk_score >= 70:
-        threat_category = "suspicious_phone_number"
-
-        recommendation = (
-            "Avoid sharing OTPs, PINs, passwords, banking information, or "
-            "making payments until the number is independently verified."
-        )
-
-    elif risk_score >= 35:
-        threat_category = "potentially_invalid_phone_number"
-
-        recommendation = (
-            "Treat this number cautiously and verify it through an independent "
-            "source before sharing sensitive information."
+            "This number matches a number classified as suspicious in the "
+            "current sample dataset. Verify the caller independently before "
+            "sharing sensitive information."
         )
 
     else:
         threat_category = "no_clear_threat_detected"
 
         recommendation = (
-            "No strong suspicious indicators were detected, but do not share "
-            "sensitive information unless you trust the caller."
+            "No strong suspicious indicators were detected by the current "
+            "baseline. This does not guarantee that the number is safe. "
+            "Do not share sensitive information unless you trust the caller."
         )
 
     return PhoneAnalysisResponse(

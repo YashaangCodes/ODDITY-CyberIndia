@@ -887,23 +887,6 @@ def check_port(
 
 
 # ============================================================
-# Special-character analysis
-# ============================================================
-
-def check_suspicious_characters(
-    parsed_url,
-) -> tuple[int, list[str]]:
-    """
-    Detect genuinely suspicious authority characters.
-    """
-
-    if parsed_url.username is not None:
-        return 0, []
-
-    return 0, []
-
-
-# ============================================================
 # Recommendations
 # ============================================================
 
@@ -1194,22 +1177,7 @@ def analyze_url(
     )
 
     # ---------------------------------------------------------
-    # 14. Suspicious characters
-    # ---------------------------------------------------------
-
-    score, evidence_reasons = (
-        check_suspicious_characters(
-            parsed_url
-        )
-    )
-
-    add_evidence(
-        score,
-        evidence_reasons,
-    )
-
-    # ---------------------------------------------------------
-    # 15. Final score
+    # 14. Final score
     # ---------------------------------------------------------
 
     risk_score = min(
@@ -1220,7 +1188,7 @@ def analyze_url(
     safety_score = 100 - risk_score
 
     # ---------------------------------------------------------
-    # 16. Threat category
+    # 15. Threat category
     # ---------------------------------------------------------
 
     if category_scores:
@@ -1243,7 +1211,7 @@ def analyze_url(
         )
 
     # ---------------------------------------------------------
-    # 17. Risk level
+    # 16. Risk level
     # ---------------------------------------------------------
 
     if risk_score >= HIGH_RISK_THRESHOLD:
@@ -1259,7 +1227,7 @@ def analyze_url(
         risk_level = "low"
 
     # ---------------------------------------------------------
-    # 18. Fallback reason
+    # 17. Fallback reason
     # ---------------------------------------------------------
 
     if not reasons:
@@ -1270,7 +1238,7 @@ def analyze_url(
         )
 
     # ---------------------------------------------------------
-    # 19. Recommendation
+    # 18. Recommendation
     # ---------------------------------------------------------
 
     recommendation = _recommendation_for(
@@ -1279,7 +1247,7 @@ def analyze_url(
     )
 
     # ---------------------------------------------------------
-    # 20. Response
+    # 19. Response
     # ---------------------------------------------------------
 
     return URLResponse(

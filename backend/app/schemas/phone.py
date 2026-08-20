@@ -34,4 +34,4 @@ class PhoneAnalysisResponse(BaseModel):
     reasons: list[str]
     recommendation: str
 
-    reputation_evidence: PhoneReputationEvidence | None
+    reputation_evidence: PhoneReputationEvidence | None = None
