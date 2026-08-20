@@ -134,19 +134,19 @@ def analyze_phone(phone_number: str) -> PhoneAnalysisResponse:
     # Add reputation-based explanations.
     if reputation_classification == "scam":
         reasons.append(
-            "The phone number matches a number listed in the ScamShield-India "
+            "The phone number matches a number listed in the ODDITY Cyber India "
             "sample scam dataset."
         )
 
     elif reputation_classification == "suspicious":
         reasons.append(
-            "The phone number matches a number listed in the ScamShield-India "
+            "The phone number matches a number listed in the ODDITY Cyber India "
             "sample suspicious-number dataset."
         )
 
     elif reputation_classification == "spam":
         reasons.append(
-            "The phone number matches a number listed in the ScamShield-India "
+            "The phone number matches a number listed in the ODDITY Cyber India "
             "sample spam dataset."
         )
 

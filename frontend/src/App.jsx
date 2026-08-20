@@ -26,8 +26,8 @@ function App() {
 
   return (
     <main>
-      <h1>ScamShield India</h1>
-      <p>Detect Smarter. Browse Safer.</p>
+      <h1>ODDITY Cyber India</h1>
+      <p>Find what doesn't fit.</p>
 
       <button onClick={checkBackend} disabled={isLoading}>
         {isLoading ? "Checking..." : "Check Backend"}

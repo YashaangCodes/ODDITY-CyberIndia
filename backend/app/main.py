@@ -6,7 +6,7 @@ from app.api.url_routes import router as url_router
 from app.api.phone_routes import router as phone_router
 
 app = FastAPI(
-    title="ScamShield India API",
+    title="ODDITY Cyber India API",
     description="Backend API for digital threat risk assessment",
     version="0.1.0",
 )
@@ -30,7 +30,7 @@ app.include_router(phone_router)
 @app.get("/")
 def home() -> dict[str, str]:
     return {
-        "project": "ScamShield India",
+        "project": "ODDITY Cyber India",
         "message": "Backend API is running successfully",
     }
 
