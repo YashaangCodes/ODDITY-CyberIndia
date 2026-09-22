@@ -1,0 +1,39 @@
+.mode-selector {
+  display: inline-flex;
+  padding: 4px;
+  background: var(--chip-bg);
+  border: 1px solid var(--surface-glass-border);
+  border-radius: var(--radius-pill);
+  gap: 4px;
+}
+
+.mode-selector-full {
+  display: flex;
+  width: 100%;
+}
+
+.mode-pill {
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 600;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-pill);
+  transition: background-color .15s ease, color .15s ease;
+}
+
+.mode-selector-full .mode-pill {
+  flex: 1;
+  text-align: center;
+}
+
+.mode-pill.is-active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.mode-pill-disabled {
+  color: var(--text-tertiary);
+  cursor: not-allowed;
+}

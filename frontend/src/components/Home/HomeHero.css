@@ -1,0 +1,211 @@
+.home-hero {
+  position: relative;
+  overflow: hidden;
+  min-height: 460px;
+  display: flex;
+  align-items: stretch;
+}
+
+/* Background art lives on a pseudo-element so its own opacity can be
+   masked independently of the hero's actual background (which is just
+   the same translucent glass surface every other section panel uses —
+   .section-panel's var(--surface-glass), left untouched here). The mask
+   gradient controls the IMAGE's own visibility: transparent on the left,
+   fully opaque by the right, so the eye stays the focal point while the
+   left side is genuinely see-through glass, not a dark card. */
+.home-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: cover;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    transparent 8%,
+    rgba(0, 0, 0, 0.25) 32%,
+    rgba(0, 0, 0, 0.6) 55%,
+    rgba(0, 0, 0, 0.88) 75%,
+    #000 92%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    transparent 8%,
+    rgba(0, 0, 0, 0.25) 32%,
+    rgba(0, 0, 0, 0.6) 55%,
+    rgba(0, 0, 0, 0.88) 75%,
+    #000 92%
+  );
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
+[data-theme="dark"] .home-hero::before {
+  background-image: url("../../assets/home-bg-dark.png");
+}
+
+[data-theme="light"] .home-hero::before {
+  background-image: url("../../assets/home-bg-light.png");
+}
+
+.home-hero-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 620px;
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.home-hero-eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.home-hero-title {
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.3px;
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+}
+
+.home-hero-title span {
+  color: var(--risk-low);
+}
+
+.home-hero-lead {
+  max-width: 520px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.65;
+  margin-bottom: var(--space-2);
+}
+
+.home-hero-analyzers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-bottom: var(--space-2);
+}
+
+.home-hero-analyzer {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-2);
+  border-radius: var(--radius-md);
+  background: transparent;
+  border: 1px solid transparent;
+  text-align: left;
+  transition: background-color .15s ease, border-color .15s ease, transform .15s ease;
+}
+
+.home-hero-analyzer:hover {
+  background: var(--surface-glass-hover);
+  border-color: var(--surface-glass-border);
+  transform: translateX(2px);
+}
+
+.home-hero-analyzer-icon {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-border);
+  color: var(--risk-low);
+}
+
+.home-hero-analyzer-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.home-hero-analyzer-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.home-hero-analyzer-tagline {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: 1px;
+}
+
+.home-hero-analyzer-desc {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.home-hero-cta {
+  align-self: center;
+  margin-top: var(--space-3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--accent-border);
+  background: linear-gradient(180deg, var(--accent), var(--accent-strong));
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.4), 0 8px 24px rgba(34, 197, 94, 0.28);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.home-hero-cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.55), 0 10px 28px rgba(34, 197, 94, 0.36);
+}
+
+@media (max-width: 768px) {
+  .home-hero-content {
+    max-width: none;
+    padding: var(--space-5);
+  }
+
+  .home-hero-title {
+    font-size: 24px;
+  }
+
+  .home-hero::before {
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(0, 0, 0, 0.5) 40%,
+      #000 70%
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(0, 0, 0, 0.5) 40%,
+      #000 70%
+    );
+    background-position: right top;
+  }
+}
